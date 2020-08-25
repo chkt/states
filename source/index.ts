@@ -1,13 +1,4 @@
-import { bindStateToState, bindContextToState, bindContextToContext, isErrorState } from './traverse';
-import { createTransitionMap as create } from './create';
-import { modify } from './modify';
-
-
-export default {
-	create,
-	modify,
-	bindStateToState,
-	bindContextToState,
-	bindContextToContext,
-	isErrorState
-};
+export { Context, State, Switch } from './state';
+export { createTransitionMap as create } from './create';
+export { modify } from './modify';
+export { bindStateToState, bindContextToState, bindContextToContext, isErrorState } from './traverse';
