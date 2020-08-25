@@ -43,7 +43,7 @@ function exec<T extends Context>(
 	}
 
 	if (to !== undefined) {
-		if (to.id in map) throw new Error('duplicate ids');
+		if (to.id in map) throw new Error(`duplicate ids ${ to.id }`);
 
 		map[to.id] = to.desc;
 	}
