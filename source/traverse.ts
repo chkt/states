@@ -88,10 +88,10 @@ export type contextToState<T extends Context> = (context:T) => Promise<State<T>>
 
 export function bindContextToState<T extends Context>(
 	states:TransitionMap<T>,
-	startName:string
+	startId:string
 ) : contextToState<T> {
 	return (context:T) : Promise<State<T>> => {
-		return traverse(states, createState(startName, context));
+		return traverse(states, createState(startId, context));
 	};
 }
 
@@ -99,10 +99,10 @@ export type contextToContext<T extends Context> = (context:T) => Promise<T>;
 
 export function bindContextToContext<T extends Context>(
 	states:TransitionMap<T>,
-	startName:string
+	startId:string
 ) : contextToContext<T> {
 	return async (context:T) : Promise<T> => {
-		const end = await traverse(states, createState(startName, context));
+		const end = await traverse(states, createState(startId, context));
 
 		if (isErrorState(end)) throw end.error;
 		else return end.context;

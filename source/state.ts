@@ -18,9 +18,6 @@ export interface Switch<T extends Context> {
 }
 
 
-export function createState<T extends Context>(name:string, context:T) : State<T> {
-	return {
-		id: name,
-		context
-	};
+export function createState<T extends Context>(id:string, context:T) : State<T> {
+	return { id, context };
 }
