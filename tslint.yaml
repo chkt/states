@@ -35,8 +35,7 @@ rules:
   no-submodule-imports: false
   object-literal-sort-keys:
     - true
-    - ignore-blank-lines
-    - match-declaration-order-only
+    - match-declaration-order
   one-line:
     - true
     - check-open-brace
