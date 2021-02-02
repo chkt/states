@@ -1,5 +1,6 @@
-.nyc_output/
-node_modules/
-package-lock.json
+/.nyc_output/
+/dist/
+/node_modules/
 
-dist/
+package-lock.json
+yarn.lock
