@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import { describe, it } from "mocha";
+import { describe, it } from 'mocha';
 
-import { Switch, Context } from "../source/state";
+import { Switch, Context } from '../source/state';
 import * as builder from '../source/create';
-import { Transition } from "../source/transition";
+import { Transition } from '../source/transition';
 
 
 const noop = async (context:Context, next:Switch<Context>) => next.success(context);
@@ -28,10 +28,12 @@ describe('createTransitionMap', () => {
 		assert('switch' in step);
 		assert.deepStrictEqual(step.switch.default(context), {
 			id : 'end',
+			path : [],
 			context
 		});
 		assert.deepStrictEqual(step.switch.success(context), {
 			id : 'end',
+			path : [],
 			context
 		});
 	});
@@ -57,10 +59,12 @@ describe('createTransitionMap', () => {
 
 		assert.deepStrictEqual(step.switch.named('success', context), {
 			id : 'end_ok',
+			path : [],
 			context
 		});
 		assert.deepStrictEqual(step.switch.named('failure', context), {
 			id : 'end_oh_no',
+			path : [],
 			context
 		});
 
@@ -82,6 +86,7 @@ describe('createTransitionMap', () => {
 
 		assert.deepStrictEqual(step.switch.failure(context), {
 			id : 'nay',
+			path : [],
 			context
 		});
 	});
