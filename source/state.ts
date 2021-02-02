@@ -4,6 +4,7 @@ export interface Context {
 
 export interface State<T extends Context> {
 	readonly id : string;
+	readonly path : readonly string[];
 	readonly context : T;
 }
 
@@ -19,5 +20,5 @@ export interface Switch<T extends Context> {
 
 
 export function createState<T extends Context>(id:string, context:T) : State<T> {
-	return { id, context };
+	return { id, path : [], context };
 }

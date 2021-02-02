@@ -26,6 +26,7 @@ describe('iterate', () => {
 
 		const iteration = iterate(states, {
 			id : 'start',
+			path : [],
 			context : {}
 		});
 		const step1 = await iteration.next();
@@ -33,6 +34,7 @@ describe('iterate', () => {
 		assert.strictEqual(step1.done, false);
 		assert.deepStrictEqual(step1.value, {
 			id : 'end',
+			path : [ 'start' ],
 			context : { foo : 1 }
 		});
 
@@ -41,6 +43,7 @@ describe('iterate', () => {
 		assert.strictEqual(step2.done, true);
 		assert.deepStrictEqual(step2.value, {
 			id : 'end',
+			path : [ 'start' ],
 			context : { foo : 1 }
 		});
 
@@ -68,12 +71,13 @@ describe('iterate', () => {
 			}
 		});
 
-		const iteration = iterate(states, { context, id : 'first' });
+		const iteration = iterate(states, { context, path : [], id : 'first' });
 		let step = await iteration.next();
 
 		assert.strictEqual(step.done, false);
 		assert.deepStrictEqual(step.value, {
 			id : 'second',
+			path : [ 'first' ],
 			context
 		});
 
@@ -82,6 +86,7 @@ describe('iterate', () => {
 		assert.strictEqual(step.done, false);
 		assert.deepStrictEqual(step.value, {
 			id : 'third',
+			path : [ 'first', 'second' ],
 			context
 		});
 
@@ -90,6 +95,7 @@ describe('iterate', () => {
 		assert.strictEqual(step.done, false);
 		assert.deepStrictEqual(step.value, {
 			id : 'end',
+			path : [ 'first', 'second', 'third' ],
 			context
 		});
 
@@ -109,6 +115,7 @@ describe('iterate', () => {
 		const context = { foo : 1 };
 		const iteration = iterate(states, {
 			id : 'start',
+			path : [],
 			context
 		});
 
@@ -116,6 +123,7 @@ describe('iterate', () => {
 
 		assert.deepStrictEqual(step.value, {
 			id : 'ok',
+			path : [ 'start' ],
 			context
 		});
 
@@ -135,6 +143,7 @@ describe('iterate', () => {
 		const context = { foo : 1 };
 		const iteration = iterate(states, {
 			id : 'start',
+			path : [],
 			context
 		});
 
@@ -142,6 +151,7 @@ describe('iterate', () => {
 
 		assert.deepStrictEqual(step.value, {
 			id : 'bah',
+			path : [ 'start' ],
 			context
 		});
 	});
@@ -159,6 +169,7 @@ describe('iterate', () => {
 		const context = { foo : 1 };
 		const iteration = iterate(states, {
 			id : 'start',
+			path : [],
 			context
 		});
 
@@ -166,6 +177,7 @@ describe('iterate', () => {
 
 		assert.deepStrictEqual(step.value, {
 			id : 'no',
+			path : [ 'start' ],
 			context
 		});
 	});
@@ -184,6 +196,7 @@ describe('iterate', () => {
 		const context = { foo : 1 };
 		const iteration = iterate(states, {
 			id : 'start',
+			path : [],
 			context
 		});
 
@@ -192,9 +205,48 @@ describe('iterate', () => {
 		assert.strictEqual(step.done, true);
 		assert.deepStrictEqual(step.value, {
 			id : 'start',
+			path : [],
 			context,
 			error
 		});
+	});
+
+	it('should recall all state transitions', async () => {
+		const states = createTransitionMap({
+			start : {
+				transform : async (context, next) => next.success(context),
+				targets : [{ id : 'test_value' }]
+			},
+			test_value : {
+				transform : async (context, next) => {
+					if (context.foo === 2) return next.success(context);
+					else return next.failure(context);
+				},
+				targets : [{ id : 'end_success' }, { id : 'update_value' }]
+			},
+			update_value : {
+				transform : async (context, next) => next.success({ ...context, foo : 2 }),
+				targets : [{ id : 'test_value' }]
+			}
+		});
+
+		const context = { foo : 1 };
+		const iteration = iterate(states, {
+			id : 'start',
+			path : [],
+			context
+		});
+
+		for (const expected of [
+			{ id : 'test_value', path : [ 'start' ], context : { foo : 1 }},
+			{ id : 'update_value', path : [ 'start', 'test_value' ], context : { foo : 1 }},
+			{ id : 'test_value', path : [ 'start', 'test_value', 'update_value'], context : { foo : 2 }},
+			{ id : 'end_success', path : [ 'start', 'test_value', 'update_value', 'test_value' ], context : { foo : 2 }}
+		]) {
+			const step = await iteration.next();
+
+			assert.deepStrictEqual(step.value, expected);
+		}
 	});
 });
 
@@ -224,16 +276,19 @@ describe('bindStateToState', () => {
 
 		assert.deepStrictEqual(good, {
 			id : 'end_success',
+			path : [ 'start' ],
 			context : { foo : 1, bar : 1 }
 		});
 
 		assert.deepStrictEqual(bad, {
 			id : 'end_failure',
+			path : [ 'start' ],
 			context : { foo : 2, bar : 2 }
 		});
 
 		assert.deepStrictEqual(ugly, {
 			id : 'start',
+			path : [],
 			context : { foo : 3 },
 			error : new Error('bang')
 		});
@@ -262,16 +317,19 @@ describe('bindContextToState', () => {
 
 		assert.deepStrictEqual(good, {
 			id : 'end_success',
+			path : [ 'start' ],
 			context : { bar : 1 }
 		});
 
 		assert.deepStrictEqual(bad, {
 			id : 'end_failure',
+			path : [ 'start' ],
 			context : { bar : 2 }
 		});
 
 		assert.deepStrictEqual(ugly, {
 			id : 'start',
+			path : [],
 			context : { foo : 3 },
 			error : new Error('bang')
 		});

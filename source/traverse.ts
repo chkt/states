@@ -40,7 +40,10 @@ export async function* iterate<T extends Context>(
 		if (!states.has(now.id)) break;
 
 		try {
-			now = await transitionState(states, now);
+			now = {
+				...await transitionState(states, now),
+				path : [ ...now.path, now.id ]
+			};
 		}
 		catch (err) {
 			return createErrorState(now, err);
