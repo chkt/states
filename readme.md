@@ -1,3 +1,11 @@
+[![Tests](https://github.com/chkt/states/workflows/tests/badge.svg)](https://github.com/chkt/states/actions)
+[![Version](https://img.shields.io/npm/v/@chkt/states)](https://www.npmjs.com/package/@chkt/states)
+![Node](https://img.shields.io/node/v/@chkt/states)
+![Dependencies](https://img.shields.io/librariesio/release/npm/@chkt/states)
+![Licence](https://img.shields.io/npm/l/@chkt/states)
+![Language](https://img.shields.io/github/languages/top/chkt/states)
+![Size](https://img.shields.io/bundlephobia/min/@chkt/states)
+
 # States
 
 ## Install
