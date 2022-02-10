@@ -1,10 +1,14 @@
-import { Context, createState, State } from "./state";
-import { Transition, TransitionMap } from "./transition";
+import { Context, State, createState } from './state';
+import { Transition, TransitionMap } from './transition';
 
 
 interface ErrorState<T extends Context>
 extends State<T> {
 	readonly error : Error;
+}
+
+interface AsyncIterableIterator<T, R = unknown> extends AsyncIterator<T, R, void> {
+	[Symbol.asyncIterator](): AsyncIterableIterator<T, R>;
 }
 
 
@@ -33,7 +37,7 @@ function transitionState<T extends Context>(states:TransitionMap<T>, now:State<T
 export async function* iterate<T extends Context>(
 	states:TransitionMap<T>,
 	start:State<T>
-) : AsyncIterableIterator<State<T>> {
+) : AsyncIterableIterator<State<T>, State<T>> {
 	let now = start;
 
 	while (true) {
@@ -46,7 +50,7 @@ export async function* iterate<T extends Context>(
 			};
 		}
 		catch (err) {
-			return createErrorState(now, err);
+			return createErrorState(now, err as Error);
 		}
 
 		yield now;
@@ -74,7 +78,7 @@ async function traverse<T extends Context>(
 
 		now = next.value;
 
-		if (next.done || !onStep(now)) break;
+		if (next.done === true || !onStep(now)) break;
 	}
 
 	return now;
@@ -84,7 +88,7 @@ async function traverse<T extends Context>(
 export type stateToState<T extends Context> = (start:State<T>) => Promise<State<T>>;
 
 export function bindStateToState<T extends Context>(states:TransitionMap<T>) : stateToState<T> {
-	return (start:State<T>) : Promise<State<T>> => traverse(states, start);
+	return (start:State<T>) => traverse(states, start);
 }
 
 export type contextToState<T extends Context> = (context:T) => Promise<State<T>>;
@@ -93,9 +97,7 @@ export function bindContextToState<T extends Context>(
 	states:TransitionMap<T>,
 	startId:string
 ) : contextToState<T> {
-	return (context:T) : Promise<State<T>> => {
-		return traverse(states, createState(startId, context));
-	};
+	return (context:T) => traverse(states, createState(startId, context));
 }
 
 export type contextToContext<T extends Context> = (context:T) => Promise<T>;

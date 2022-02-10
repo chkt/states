@@ -1,7 +1,4 @@
-export interface Hash<T> {
-	[key:string] : T;
-}
-
-export interface ReadonlyHash<T> {
-	readonly [key:string] : T;
-}
+/**
+ * @deprecated same as Record&lt;string, T>
+ */
+export type Hash<T> = Record<string, T>;

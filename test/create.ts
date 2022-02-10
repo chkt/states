@@ -1,16 +1,16 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-
-import { Switch, Context } from '../source/state';
+import { Context, State, Switch } from '../source/state';
 import * as builder from '../source/create';
 import { Transition } from '../source/transition';
 
 
-const noop = async (context:Context, next:Switch<Context>) => next.success(context);
+const noop = async (context:Context, next:Switch<Context>) : Promise<State<Context>> => next.success(context);
 
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 describe('createTransitionMap', () => {
-	it("should produce a basic TransitionMap", () => {
+	it('should produce a basic TransitionMap', () => {
 		const res = builder.createTransitionMap({
 			start : {
 				transform : noop,
@@ -38,7 +38,7 @@ describe('createTransitionMap', () => {
 		});
 	});
 
-	it("should produce a TransitionMap with named targets", () => {
+	it('should produce a TransitionMap with named targets', () => {
 		const res = builder.createTransitionMap({
 			start : {
 				transform : noop,

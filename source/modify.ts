@@ -1,6 +1,6 @@
-import { Hash } from "./common";
-import { Context } from "./state";
-import { StateDescription, StateDescriptionMap, StateTargets } from "./create";
+import { Hash } from './common';
+import { Context } from './state';
+import { StateDescription, StateDescriptionMap, StateTargets } from './create';
 
 
 interface StateInsertion<T extends Context> {
@@ -22,18 +22,18 @@ function replaceTargets(targets:StateTargets, from:string, to:string) : StateTar
 }
 
 
-type transform<T extends Context> = (id:string, item:StateDescription<T>) => StateDescription<T>|null;
+type transform<T extends Context> = (id:string, item:StateDescription<T>) => StateDescription<T> | null;
 
 
 function exec<T extends Context>(
 	source:StateDescriptionMap<T>,
 	fn:transform<T>,
-	to?:StateInsertion<T>,
+	to?:StateInsertion<T>
 ) : StateDescriptionMap<T> {
 	const map:Hash<StateDescription<T>> = {};
 
 	for (const id in source) {
-		if (!(source.hasOwnProperty(id))) continue;
+		if (!Object.prototype.hasOwnProperty.call(source, id)) continue;
 
 		const res = fn(id, source[id]);
 
@@ -128,7 +128,7 @@ function isAppendAction<T extends Context>(action:StateDescription<T>) : action 
 }
 
 
-export type StateModification<T extends Context> = StateDescription<T>|InsertAction<T>|AppendAction<T>|null;
+export type StateModification<T extends Context> = StateDescription<T> | InsertAction<T> | AppendAction<T> | null;
 export type StateModificationMap<T extends Context> = Hash<StateModification<T>>;
 
 
@@ -139,7 +139,7 @@ export function modify<T extends Context>(
 	let map = states;
 
 	for (const id in actions) {
-		if (!actions.hasOwnProperty(id)) continue;
+		if (!Object.prototype.hasOwnProperty.call(actions, id)) continue;
 
 		const action = actions[id];
 

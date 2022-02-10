@@ -1,6 +1,5 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-
 import * as transition from '../source/traverse';
 import * as create from '../source/create';
 import * as modify from '../source/modify';

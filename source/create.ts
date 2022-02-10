@@ -1,6 +1,6 @@
-import { Hash } from "./common";
-import { Context, State, Switch, createState } from "./state";
-import { transform, Transition, TransitionMap } from "./transition";
+import { Hash } from './common';
+import { Context, State, Switch, createState } from './state';
+import { Transition, TransitionMap, transform } from './transition';
 
 
 export interface StateTarget {
@@ -21,7 +21,10 @@ export type StateDescriptionMap<T extends Context> = Hash<StateDescription<T>>;
 
 function getStateAliasError(localNames:Hash<string>, name:string) : Error {
 	const names = Object.getOwnPropertyNames(localNames);
-	const msg = `no named transition '${ name }' in [${ names.slice(0, 7).join(',')}${ names.length > 7 ? '...' : '' }]`;
+	const msg = `no named transition '${
+		name }' in [${
+		names.slice(0, 7).join(',') }${
+		names.length > 7 ? '...' : '' }]`;
 
 	return new Error(msg);
 }
@@ -42,7 +45,7 @@ function produceSwitch<T extends Context>(
 	return {
 		default : createState.bind<null, string, T[], State<T>>(null, targetNames[0]),
 		success : createState.bind<null, string, T[], State<T>>(null, targetNames[0]),
-		failure : createState.bind<null, string, T[], State<T>>(null, targetNames[ targetNames.length - 1 ]),
+		failure : createState.bind<null, string, T[], State<T>>(null, targetNames[targetNames.length - 1]),
 		named : createStateFromName.bind<null, Hash<string>, [string, T], State<T>>(null, localNames)
 	};
 }
@@ -70,7 +73,7 @@ export function createTransitionMap<T extends Context>(states:StateDescriptionMa
 	const res:Map<string, Transition<T>> = new Map();
 
 	for (const name in states) {
-		if (!states.hasOwnProperty(name)) continue;
+		if (!Object.prototype.hasOwnProperty.call(states, name)) continue;
 
 		const state:StateDescription<T> = states[name];
 

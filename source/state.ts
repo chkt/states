@@ -1,6 +1,4 @@
-export interface Context {
-	[index:string] : any;
-}
+export type Context = Record<string, unknown>;
 
 export interface State<T extends Context> {
 	readonly id : string;

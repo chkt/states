@@ -1,9 +1,8 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-
-import { StateDescriptionMap } from "../source/create";
-import { Context, State, Switch } from "../source/state";
-import { modify, StateModificationMap } from "../source/modify";
+import { StateDescriptionMap } from '../source/create';
+import { Context, State, Switch } from '../source/state';
+import { StateModificationMap, modify } from '../source/modify';
 
 
 async function noop(context:Context, next:Switch<Context>) : Promise<State<Context>> {
@@ -11,8 +10,8 @@ async function noop(context:Context, next:Switch<Context>) : Promise<State<Conte
 }
 
 
-describe("modify", () => {
-	it ("should insert specified actions", () => {
+describe('modify', () => {
+	it('should insert specified actions', () => {
 		const states:StateDescriptionMap<Context> = {
 			start : {
 				transform : noop,
@@ -26,9 +25,9 @@ describe("modify", () => {
 
 		const mod:StateModificationMap<Context> = {
 			insert : {
-				before: 'end',
-				transform: noop,
-				targets: [{id: 'end'}]
+				before : 'end',
+				transform : noop,
+				targets : [{ id : 'end' }]
 			}
 		};
 
@@ -43,12 +42,12 @@ describe("modify", () => {
 			},
 			end : {
 				transform : noop,
-				targets : [{ id : ''}]
+				targets : [{ id : '' }]
 			}
 		});
 	});
 
-	it("should append specified actions", () => {
+	it('should append specified actions', () => {
 		const states:StateDescriptionMap<Context> = {
 			start : {
 				transform : noop,
@@ -77,7 +76,7 @@ describe("modify", () => {
 		});
 	});
 
-	it("should replace specified actions", () => {
+	it('should replace specified actions', () => {
 		const states:StateDescriptionMap<Context> = {
 			start : {
 				transform : noop,
@@ -108,7 +107,7 @@ describe("modify", () => {
 		});
 	});
 
-	it("should add specified actions", () => {
+	it('should add specified actions', () => {
 		const states:StateDescriptionMap<Context> = {
 			start : {
 				transform : noop,
@@ -135,7 +134,7 @@ describe("modify", () => {
 		});
 	});
 
-	it("should remove specified actions", () => {
+	it('should remove specified actions', () => {
 		const states:StateDescriptionMap<Context> = {
 			start : {
 				transform : noop,

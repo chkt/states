@@ -1,4 +1,4 @@
-import { Context, Switch, State } from "./state";
+import { Context, State, Switch } from './state';
 
 
 export type transform<T extends Context> = (context:T, next:Switch<T>) => Promise<State<T>>;

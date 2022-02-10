@@ -1,26 +1,26 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-
 import {
 	bindContextToContext,
 	bindContextToState,
 	bindStateToState,
 	iterate
-} from "../source/traverse";
-import { State, Switch, Context, createState } from "../source/state";
-import { createTransitionMap } from "../source/create";
+} from '../source/traverse';
+import { Context, State, Switch, createState } from '../source/state';
+import { createTransitionMap } from '../source/create';
 
 
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 describe('iterate', () => {
 	it('should traverse a basic state machine', async () => {
 		const states = createTransitionMap({
 			start : {
-				transform :  async (context:Context, next:Switch<Context>) : Promise<State<Context>> => {
+				transform : async (context:Context, next:Switch<Context>) : Promise<State<Context>> => {
 					context.foo = 1;
 
 					return next.success(context);
 				},
-				targets : [{ id : 'end' }],
+				targets : [{ id : 'end' }]
 			}
 		});
 
@@ -51,8 +51,8 @@ describe('iterate', () => {
 	});
 
 	it('should traverse multiple states', async () => {
-		async function transform(context:Context, next:Switch<Context>) : Promise<State<Context>> {
-			return next.default(context);
+		async function transform(ctx:Context, next:Switch<Context>) : Promise<State<Context>> {
+			return next.default(ctx);
 		}
 
 		const context = { foo : 1 };
@@ -63,7 +63,7 @@ describe('iterate', () => {
 			},
 			second : {
 				transform,
-				targets : [{ id : 'third'}]
+				targets : [{ id : 'third' }]
 			},
 			third : {
 				transform,
@@ -105,9 +105,7 @@ describe('iterate', () => {
 	it('should traverse the success branch', async () => {
 		const states = createTransitionMap({
 			start : {
-				transform : async (context:Context, next:Switch<Context>) : Promise<State<Context>> => {
-					return next.success(context);
-				},
+				transform : async (ctx:Context, next:Switch<Context>) => next.success(ctx),
 				targets : [{ id : 'ok' }, { id : 'no' }, { id : 'bah' }]
 			}
 		});
@@ -133,9 +131,7 @@ describe('iterate', () => {
 	it('should traverse the failure branch', async () => {
 		const states = createTransitionMap({
 			start : {
-				transform : async (context:Context, next:Switch<Context>) : Promise<State<Context>> => {
-					return next.failure(context);
-				},
+				transform : async (ctx:Context, next:Switch<Context>) => next.failure(ctx),
 				targets : [{ id : 'ok' }, { id : 'no' }, { id : 'bah' }]
 			}
 		});
@@ -159,9 +155,7 @@ describe('iterate', () => {
 	it('should traverse a named branch', async () => {
 		const states = createTransitionMap({
 			start : {
-				transform : async (context:Context, next:Switch<Context>) : Promise<State<Context>> => {
-					return next.named('alt', context);
-				},
+				transform : async (ctx:Context, next:Switch<Context>) => next.named('alt', ctx),
 				targets : [{ id : 'ok' }, { id : 'no', name : 'alt' }, { id : 'bah' }]
 			}
 		});
@@ -182,7 +176,7 @@ describe('iterate', () => {
 		});
 	});
 
-	it ('should catch errors thrown inside transforms', async () => {
+	it('should catch errors thrown inside transforms', async () => {
 		const error = new Error('bang');
 		const states = createTransitionMap({
 			start : {
@@ -214,19 +208,19 @@ describe('iterate', () => {
 	it('should recall all state transitions', async () => {
 		const states = createTransitionMap({
 			start : {
-				transform : async (context, next) => next.success(context),
-				targets : [{ id : 'test_value' }]
+				transform : async (ctx, next) => next.success(ctx),
+				targets : [{ id : 'testValue' }]
 			},
-			test_value : {
-				transform : async (context, next) => {
-					if (context.foo === 2) return next.success(context);
-					else return next.failure(context);
+			testValue : {
+				transform : async (ctx, next) => {
+					if (ctx.foo === 2) return next.success(ctx);
+					else return next.failure(ctx);
 				},
-				targets : [{ id : 'end_success' }, { id : 'update_value' }]
+				targets : [{ id : 'end_success' }, { id : 'updateValue' }]
 			},
-			update_value : {
-				transform : async (context, next) => next.success({ ...context, foo : 2 }),
-				targets : [{ id : 'test_value' }]
+			updateValue : {
+				transform : async (ctx, next) => next.success({ ...ctx, foo : 2 }),
+				targets : [{ id : 'testValue' }]
 			}
 		});
 
@@ -238,10 +232,10 @@ describe('iterate', () => {
 		});
 
 		for (const expected of [
-			{ id : 'test_value', path : [ 'start' ], context : { foo : 1 }},
-			{ id : 'update_value', path : [ 'start', 'test_value' ], context : { foo : 1 }},
-			{ id : 'test_value', path : [ 'start', 'test_value', 'update_value'], context : { foo : 2 }},
-			{ id : 'end_success', path : [ 'start', 'test_value', 'update_value', 'test_value' ], context : { foo : 2 }}
+			{ id : 'testValue', path : [ 'start' ], context : { foo : 1 }},
+			{ id : 'updateValue', path : [ 'start', 'testValue' ], context : { foo : 1 }},
+			{ id : 'testValue', path : [ 'start', 'testValue', 'updateValue' ], context : { foo : 2 }},
+			{ id : 'end_success', path : [ 'start', 'testValue', 'updateValue', 'testValue' ], context : { foo : 2 }}
 		]) {
 			const step = await iteration.next();
 
@@ -257,10 +251,12 @@ describe('bindStateToState', () => {
 				transform : async (context:Context, next:Switch<Context>) : Promise<State<Context>> => {
 					if (context.foo === 1) {
 						context.bar = 1;
+
 						return next.success(context);
 					}
 					else if (context.foo === 2) {
 						context.bar = 2;
+
 						return next.failure(context);
 					}
 					else throw new Error('bang');
@@ -347,7 +343,7 @@ describe('bindContextToContext', () => {
 						default : throw new Error('bang');
 					}
 				},
-				targets : [{ id : 'end_success'}, { id : 'end_failure' }]
+				targets : [{ id : 'end_success' }, { id : 'end_failure' }]
 			}
 		});
 
