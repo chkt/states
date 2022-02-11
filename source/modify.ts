@@ -1,4 +1,5 @@
-import { Hash } from './common';
+import Dict = NodeJS.Dict;
+import ReadOnlyDict = NodeJS.ReadOnlyDict;
 import { Context } from './state';
 import { StateDescription, StateDescriptionMap, StateTargets } from './create';
 
@@ -30,12 +31,12 @@ function exec<T extends Context>(
 	fn:transform<T>,
 	to?:StateInsertion<T>
 ) : StateDescriptionMap<T> {
-	const map:Hash<StateDescription<T>> = {};
+	const map:Dict<StateDescription<T>> = {};
 
 	for (const id in source) {
 		if (!Object.prototype.hasOwnProperty.call(source, id)) continue;
 
-		const res = fn(id, source[id]);
+		const res = fn(id, source[id] as StateDescription<T>);
 
 		if (res === null) continue;
 
@@ -129,7 +130,7 @@ function isAppendAction<T extends Context>(action:StateDescription<T>) : action 
 
 
 export type StateModification<T extends Context> = StateDescription<T> | InsertAction<T> | AppendAction<T> | null;
-export type StateModificationMap<T extends Context> = Hash<StateModification<T>>;
+export type StateModificationMap<T extends Context> = ReadOnlyDict<StateModification<T>>;
 
 
 export function modify<T extends Context>(
@@ -141,7 +142,7 @@ export function modify<T extends Context>(
 	for (const id in actions) {
 		if (!Object.prototype.hasOwnProperty.call(actions, id)) continue;
 
-		const action = actions[id];
+		const action = actions[id] as Exclude<typeof actions[typeof id], undefined>;
 
 		if (action === null) map = remove(map, id);
 		else if (isInsertAction(action)) map = insert(map, action.before, { id, desc : action });

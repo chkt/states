@@ -1,4 +1,5 @@
-import { Hash } from './common';
+import Dict = NodeJS.Dict;
+import ReadOnlyDict = NodeJS.ReadOnlyDict;
 import { Context, State, Switch, createState } from './state';
 import { Transition, TransitionMap, transform } from './transition';
 
@@ -16,10 +17,10 @@ export interface StateDescription<T extends Context> {
 	readonly targets : StateTargets;
 }
 
-export type StateDescriptionMap<T extends Context> = Hash<StateDescription<T>>;
+export type StateDescriptionMap<T extends Context> = ReadOnlyDict<StateDescription<T>>;
 
 
-function getStateAliasError(localNames:Hash<string>, name:string) : Error {
+function getStateAliasError(localNames:ReadOnlyDict<string>, name:string) : Error {
 	const names = Object.getOwnPropertyNames(localNames);
 	const msg = `no named transition '${
 		name }' in [${
@@ -30,38 +31,40 @@ function getStateAliasError(localNames:Hash<string>, name:string) : Error {
 }
 
 function createStateFromName<T extends Context>(
-	localNames:Hash<string>,
+	localNames:ReadOnlyDict<string>,
 	name:string,
 	context:T
 ) : State<T> {
-	if (name in localNames) return createState(localNames[name], context);
+	const localName = localNames[name];
+
+	if (localName !== undefined) return createState(localName, context);
 	else throw getStateAliasError(localNames, name);
 }
 
 function produceSwitch<T extends Context>(
 	targetNames:string[],
-	localNames:Hash<string>
+	localNames:ReadOnlyDict<string>
 ) : Switch<T> {
 	return {
 		default : createState.bind<null, string, T[], State<T>>(null, targetNames[0]),
 		success : createState.bind<null, string, T[], State<T>>(null, targetNames[0]),
 		failure : createState.bind<null, string, T[], State<T>>(null, targetNames[targetNames.length - 1]),
-		named : createStateFromName.bind<null, Hash<string>, [string, T], State<T>>(null, localNames)
+		named : createStateFromName.bind<null, ReadOnlyDict<string>, [string, T], State<T>>(null, localNames)
 	};
 }
 
 
 function createTransition<T extends Context>(state:StateDescription<T>) : Transition<T> {
 	const ids:string[] = [];
-	const names:Hash<string> = {};
+	const names:Dict<string> = {};
 
 	if (state.targets.length < 1) throw new Error(`state not exitable`);
 
-	state.targets.forEach((item:StateTarget) => {
+	for (const item of state.targets) {
 		ids.push(item.id);
 
-		if ('name' in item) names[item.name as string] = item.id;
-	});
+		if (item.name !== undefined) names[item.name] = item.id;
+	}
 
 	return {
 		transform : state.transform,
@@ -75,7 +78,7 @@ export function createTransitionMap<T extends Context>(states:StateDescriptionMa
 	for (const name in states) {
 		if (!Object.prototype.hasOwnProperty.call(states, name)) continue;
 
-		const state:StateDescription<T> = states[name];
+		const state = states[name] as StateDescription<T>;
 
 		res.set(name, createTransition(state));
 	}
