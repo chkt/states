@@ -6,7 +6,7 @@
 		"finite state machine",
 		"state machine"
 	],
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"license": "MIT",
 	"author": {
 		"name": "chkt",
@@ -24,13 +24,13 @@
 	],
 	"main": "./dist/index.js",
 	"scripts": {
-		"prepublishOnly": "yarn upgrade && yarn outdated && yarn run test && yarn run lint && yarn run build",
+		"prepublishOnly": "yarn outdated && yarn run test && yarn run lint && yarn run build",
 		"lint": "yarn eslint source/**/*.ts test/**/*.ts",
 		"test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.ts",
 		"build": "rm -rf ./dist/* && yarn tsc"
 	},
 	"devDependencies": {
-		"@chkt/eslint-config" : "^1.0.2",
+		"@chkt/eslint-config" : "^1.0.3",
 		"@types/mocha": "^9.1",
 		"@types/node": "^17.0",
 		"@typescript-eslint/eslint-plugin": "^5.11",
