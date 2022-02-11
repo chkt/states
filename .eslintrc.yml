@@ -1,0 +1,10 @@
+root: true
+parser: '@typescript-eslint/parser'
+parserOptions:
+  tsConfigRootDir: __dirname
+  project:
+    - ./tsconfig.eslint.json
+plugins:
+  - '@typescript-eslint'
+extends:
+  - '@chkt/eslint-config'
